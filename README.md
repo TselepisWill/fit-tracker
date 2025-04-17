@@ -2,6 +2,7 @@
 # functional requirement 
 The app will have two kinds of features, one for user-facing features and the other for
 admin-facing features. For instance, users can log in and record their activity and nutrition
+<<<<<<< HEAD
 goals. For the admin, it would report any new recipes or workout routines.
 
 # User-Features
@@ -10,3 +11,6 @@ goals. For the admin, it would report any new recipes or workout routines.
 - Users will be able to track their goals, calories, workouts, sleep, and meals.
 - The user will be able to view tips based on their current fitness goals
 - The user will be able to view videos on proper workouts
+=======
+goals. For the admin, it would report any new recipes or workout routines.
+>>>>>>> 645d882b4cabf91cb3f3df2fcfba92c573cbea6d
