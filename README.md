@@ -18,7 +18,7 @@
    - Nutrition tracking (calories/macros)
    - Sleep monitoring integration
 
-3. **Personalized Content**
+3. **Personalized Content/AI**
    - Workout video demonstrations
    - Diet/training tips based on goals
    - Progress visualization (charts/graphs)
