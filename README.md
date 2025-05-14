@@ -1,9 +1,9 @@
 # Fit Tracker - Fitness & Nutrition App
 
 ## Team Members
-- [Your Name]
-- [Teammate 1]
-- [Teammate 2]
+- Helwa Salameh
+- Ramel Dawood
+- Will T
 
 ## Functional Requirements
 
