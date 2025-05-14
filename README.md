@@ -1,18 +1,39 @@
-# fit-tracker
-# functional requirement 
-The app will have two kinds of features, one for user-facing features and the other for
-admin-facing features. For instance, users can log in and record their activity and nutrition
-goals. For the admin, it would report any new recipes or workout routines.
+# Fit Tracker - Fitness & Nutrition App
 
-# User-Features
-- Users will be able to get alerts about their fitness goals
-- Users will be able to sign up for the app and log-in/sign-out
-- Users will be able to track their goals, calories, workouts, sleep, and meals.
-- The user will be able to view tips based on their current fitness goals
-- The user will be able to view videos on proper workouts
+## Team Members
+- [Your Name]
+- [Teammate 1]
+- [Teammate 2]
 
-Admin Features
-- Admins will be able to manage the accounts
-- Admins can moderate content
-- Access Fitness and health tools
-- System settings (sending out notification)
+## Functional Requirements
+
+### User Features
+1. **Account Management**
+   - User registration/login
+   - Profile customization
+   - Goal setting (weight loss/muscle gain)
+
+2. **Activity Tracking**
+   - Workout logging (sets/reps/duration)
+   - Nutrition tracking (calories/macros)
+   - Sleep monitoring integration
+
+3. **Personalized Content**
+   - Workout video demonstrations
+   - Diet/training tips based on goals
+   - Progress visualization (charts/graphs)
+
+### Admin Features
+1. **User Management**
+   - Account moderation
+   - Content flagging system
+
+2. **Content Management**
+   - Add/remove workout routines
+   - Approve new recipes
+   - Push notifications system
+
+## Technical Documentation
+- [Architecture Diagram](./docs/architecture.png)
+- [Requirements Specification](./docs/REQUIREMENTS.md)
+- [Sequence Diagrams](./docs/sequence_diagrams/)
