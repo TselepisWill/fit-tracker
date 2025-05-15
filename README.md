@@ -3,7 +3,7 @@
 ## Team Members
 - Helwa Salameh
 - Ramel Dawood
-- Will T
+- Will Tselepis
 
 ## Functional Requirements
 
@@ -15,11 +15,11 @@
 
 2. **Activity Tracking**
    - Workout logging (sets/reps/duration)
-   - Nutrition tracking (calories/macros)
+   - Nutrition tracking/recommendations (calories/macros)
    - Sleep monitoring integration
 
 3. **Personalized Content/AI**
-   - Workout video demonstrations
+   - Recommended workouts with video demonstration
    - Diet/training tips based on goals
    - Progress visualization (charts/graphs)
 
