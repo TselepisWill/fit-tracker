@@ -6,13 +6,19 @@ export default function HomeScreen({ navigation }) {
     <View style={styles.container}>
       <Text style={styles.title}>Fitness Tracker</Text>
 
+      <Pressable onPress={() => navigation.navigate('Profile')}>
+        <Text style={styles.link}>Profile</Text>
+      </Pressable>
+
       <Pressable onPress={() => navigation.navigate('Workouts')}>
-        <Text style={styles.link}>Go to Workouts</Text>
+        <Text style={styles.link}>Workouts</Text>
       </Pressable>
 
       <Pressable onPress={() => navigation.navigate('Meals')}>
-        <Text style={styles.link}>Go to Meals</Text>
+        <Text style={styles.link}>Meals</Text>
       </Pressable>
+
+      
     </View>
   );
 }

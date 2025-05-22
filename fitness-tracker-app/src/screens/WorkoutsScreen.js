@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Button, FlatList } from 'react-native';
 
 export default function WorkoutsScreen() {
   const [workoutText, setWorkoutText] = useState('');
@@ -29,18 +29,19 @@ export default function WorkoutsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-start',     // start higher on the screen
+    alignItems: 'flex-start',         // align to the left
     paddingHorizontal: 20,
+    paddingTop: 80,                   // move content down from the top
     backgroundColor: '#fff',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 30,
   },
   input: {
-    width: '100%',
+    width: 250,                       // narrower input box
     height: 50,
     borderColor: '#aaa',
     borderWidth: 1,
@@ -51,6 +52,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginVertical: 10,
-    width: '100%',
+    width: 150,                       // narrower button
   },
 });
+
