@@ -24,7 +24,8 @@ export default function WorkoutsScreen() {
     }
 
     try {
-      const res = await fetch('http://10.0.0.232:3001/api/workouts', {
+      const res = await fetch('http://localhost:3001/api/workouts', {
+
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, description: workoutText }),
@@ -46,7 +47,7 @@ export default function WorkoutsScreen() {
   const fetchWorkouts = async () => {
     try {
       setWorkouts([]); 
-      const res = await fetch(`http://10.0.0.232:3001/api/workouts/${userId}?t=${Date.now()}`); 
+      const res = await fetch(`http://localhost:3001/api/workouts/${userId}?t=${Date.now()}`);
       const data = await res.json();
       setWorkouts(data);
     } catch (err) {
@@ -99,7 +100,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
     paddingBottom: 40,
   },
   title: {
@@ -107,14 +108,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
+    color: '#fff',
   },
   input: {
-    borderColor: '#ccc',
+    borderColor: '#555',
     borderWidth: 1,
     borderRadius: 8,
     padding: 14,
     marginBottom: 16,
     fontSize: 18, 
+    backgroundColor: '#1a1a1a', 
+    color: '#fff', 
   },
   button: {
     backgroundColor: '#2196F3',
@@ -131,10 +135,11 @@ const styles = StyleSheet.create({
   item: {
     fontSize: 18, 
     paddingVertical: 10,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#333',
     borderBottomWidth: 1,
     textAlign: 'left',
     paddingHorizontal: 5,
+    color: '#fff',
   },
   empty: {
     fontSize: 18, 

@@ -28,16 +28,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#000', 
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 30,
+    color: '#fff', 
   },
   link: {
     fontSize: 18,
-    color: '#007bff',
+    color: '#007bff', 
     textDecorationLine: 'underline',
   },
 });
+
