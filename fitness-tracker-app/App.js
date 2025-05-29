@@ -6,6 +6,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import WorkoutsScreen from './src/screens/WorkoutsScreen';
 import MealsScreen from './src/screens/MealsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import AuthScreen from './src/screens/AuthScreen';
 import { View, StatusBar } from 'react-native';
 
 const Drawer = createDrawerNavigator();
@@ -32,9 +33,11 @@ export default function App() {
           }}
         >
           <Drawer.Screen name="Home" component={HomeScreen} />
+          <Drawer.Screen name="Log-In" component={AuthScreen} />
+          <Drawer.Screen name="Profile" component={ProfileScreen} />
           <Drawer.Screen name="Workouts" component={WorkoutsScreen} />
           <Drawer.Screen name="Meals" component={MealsScreen} />
-          <Drawer.Screen name="Profile" component={ProfileScreen} />
+          
         </Drawer.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>
