@@ -5,7 +5,10 @@ const {
   getUserMeals
 } = require('../controllers/mealController');
 
+// Create a new meal
 router.post('/', createMeal);
-router.get('/:userId', getUserMeals);
+
+// Get meals for a user (optionally add date filter with query params later)
+router.get('/user/:userId', getUserMeals);
 
 module.exports = router;
