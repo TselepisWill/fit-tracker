@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 20,
-    backgroundColor: '#000',
+    backgroundColor: '#121212',
     paddingBottom: 40,
   },
   title: {
@@ -184,13 +184,14 @@ const styles = StyleSheet.create({
     padding: 14,
     marginBottom: 12,
     fontSize: 16,
-    backgroundColor: '#000',
+    backgroundColor: '#121212',
     color: '#fff',
   },
   nutritionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 12,
+    
   },
   nutritionInput: {
     width: '48%',

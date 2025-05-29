@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 20,
-    backgroundColor: '#000',
+    backgroundColor: '#121212',
     paddingBottom: 40,
   },
   title: {

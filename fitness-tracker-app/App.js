@@ -2,12 +2,15 @@ import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { View, StatusBar, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 import HomeScreen from './src/screens/HomeScreen';
 import WorkoutsScreen from './src/screens/WorkoutsScreen';
 import MealsScreen from './src/screens/MealsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
-import AuthScreen from './src/screens/AuthScreen';
-import { View, StatusBar } from 'react-native';
+import AuthScreen from './src/screens/AuthScreen.js';
+
 
 const Drawer = createDrawerNavigator();
 
@@ -24,12 +27,20 @@ export default function App() {
               width: 240,
             },
             headerStyle: {
-              backgroundColor: '#121212',
+              backgroundColor: '#0d0d0d',
             },
             headerTintColor: '#fff',
             drawerLabelStyle: {
               color: '#fff',
             },
+                        headerRight: () => ( 
+              <MaterialCommunityIcons
+                name="weight-lifter" 
+                size={26}
+                color="#fff"
+                style={{ marginRight: 15 }}
+              />
+            ),
           }}
         >
           <Drawer.Screen name="Home" component={HomeScreen} />

@@ -61,7 +61,7 @@ export default function AuthScreen() {
           <Text style={styles.buttonText}>LOGIN</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>Registration</Text>
+        <Text style={styles.title}>Sign up</Text>
 
         <TextInput
           style={styles.input}
@@ -91,8 +91,9 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 20,
-    backgroundColor: '#000',
+    backgroundColor: '#121212',
     paddingBottom: 40,
   },
   title: {
@@ -104,16 +105,18 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   input: {
+    width: '70%',
     borderColor: '#555',
     borderWidth: 1,
     borderRadius: 8,
     padding: 14,
     marginBottom: 16,
-    fontSize: 18,
+    fontSize: 16,
     backgroundColor: '#1a1a1a',
     color: '#fff',
   },
   button: {
+    width: '45%',
     backgroundColor: '#2196F3',
     paddingVertical: 16,
     borderRadius: 6,

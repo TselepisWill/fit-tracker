@@ -8,20 +8,36 @@ export default function HomeScreen({ navigation }) {
       <Text style={styles.header}>Fitness Tracker</Text>
       <Text style={styles.subText}>Track your health, meals, and workouts smarter.</Text>
 
+
       <View style={styles.buttonGroup}>
+
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Log-In')}>
+          <View style ={styles.cardContent}>
+            <MaterialCommunityIcons name="login" size={32} color="#fff" />
+            <Text style={styles.cardText}>Log-In</Text>
+          </View>  
+        </TouchableOpacity>
+
+
         <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Profile')}>
-          <MaterialCommunityIcons name="account-circle" size={32} color="#4FC3F7" />
-          <Text style={styles.cardText}>Profile</Text>
+          <View style ={styles.cardContent}>
+            <MaterialCommunityIcons name="account-circle" size={32} color="#4FC3F7" />
+            <Text style={styles.cardText}>Profile</Text>
+          </View> 
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Workouts')}>
-          <MaterialCommunityIcons name="dumbbell" size={32} color="#81C784" />
-          <Text style={styles.cardText}>Workouts</Text>
+          <View style ={styles.cardContent}>
+            <MaterialCommunityIcons name="dumbbell" size={32} color="#81C784" />
+            <Text style={styles.cardText}>Workouts</Text>
+          </View>  
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Meals')}>
-          <MaterialCommunityIcons name="food-apple" size={32} color="#FFB74D" />
-          <Text style={styles.cardText}>Meals</Text>
+          <View style ={styles.cardContent}>
+            <MaterialCommunityIcons name="food-apple" size={32} color="#FFB74D" />
+            <Text style={styles.cardText}>Meals</Text>
+          </View> 
         </TouchableOpacity>
       </View>
     </View>
@@ -59,19 +75,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 15,
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignSelf: 'center',
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
+    width: '80%',
   },
   cardText: {
     fontSize: 20,
     fontWeight: '600',
     color: '#FAFAFA',
+    textAlign: 'center',
   },
+  cardContent: {                 
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',                     
+  }
+
 });
 
 
