@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 
 const mealSchema = new mongoose.Schema({
   userId: {
-    type: Number,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,  // <-- change here if user is ObjectId
+    required: true,
+    ref: 'User'  // optional ref if you want population later
   },
   description: {
     type: String,
