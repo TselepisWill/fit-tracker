@@ -1,24 +1,29 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Fitness Tracker</Text>
+      <Text style={styles.header}>Fitness Tracker</Text>
+      <Text style={styles.subText}>Track your health, meals, and workouts smarter.</Text>
 
-      <Pressable onPress={() => navigation.navigate('Profile')}>
-        <Text style={styles.link}>Profile</Text>
-      </Pressable>
+      <View style={styles.buttonGroup}>
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Profile')}>
+          <MaterialCommunityIcons name="account-circle" size={32} color="#4FC3F7" />
+          <Text style={styles.cardText}>Profile</Text>
+        </TouchableOpacity>
 
-      <Pressable onPress={() => navigation.navigate('Workouts')}>
-        <Text style={styles.link}>Workouts</Text>
-      </Pressable>
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Workouts')}>
+          <MaterialCommunityIcons name="dumbbell" size={32} color="#81C784" />
+          <Text style={styles.cardText}>Workouts</Text>
+        </TouchableOpacity>
 
-      <Pressable onPress={() => navigation.navigate('Meals')}>
-        <Text style={styles.link}>Meals</Text>
-      </Pressable>
-
-      
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Meals')}>
+          <MaterialCommunityIcons name="food-apple" size={32} color="#FFB74D" />
+          <Text style={styles.cardText}>Meals</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -26,20 +31,47 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#121212',
     alignItems: 'center',
-    backgroundColor: '#000', 
+    justifyContent: 'center',
+    padding: 20,
   },
-  title: {
-    fontSize: 28,
+  header: {
+    fontSize: 30,
     fontWeight: 'bold',
-    marginBottom: 30,
-    color: '#fff', 
+    marginBottom: 10,
+    color: '#FAFAFA',
   },
-  link: {
-    fontSize: 18,
-    color: '#007bff', 
-    textDecorationLine: 'underline',
+  subText: {
+    fontSize: 16,
+    color: '#B0BEC5',
+    marginBottom: 30,
+    textAlign: 'center',
+    paddingHorizontal: 10,
+  },
+  buttonGroup: {
+    width: '100%',
+  },
+  card: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 12,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    marginBottom: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+  },
+  cardText: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#FAFAFA',
   },
 });
+
 
