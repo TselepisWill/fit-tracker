@@ -8,36 +8,41 @@ export default function HomeScreen({ navigation }) {
       <Text style={styles.header}>Fitness Tracker</Text>
       <Text style={styles.subText}>Track your health, meals, and workouts smarter.</Text>
 
-
       <View style={styles.buttonGroup}>
-
         <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Log-In')}>
-          <View style ={styles.cardContent}>
+          <View style={styles.cardContent}>
             <MaterialCommunityIcons name="login" size={32} color="#fff" />
             <Text style={styles.cardText}>Log-In</Text>
-          </View>  
+          </View>
         </TouchableOpacity>
 
-
         <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Profile')}>
-          <View style ={styles.cardContent}>
+          <View style={styles.cardContent}>
             <MaterialCommunityIcons name="account-circle" size={32} color="#4FC3F7" />
             <Text style={styles.cardText}>Profile</Text>
-          </View> 
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Workouts')}>
-          <View style ={styles.cardContent}>
+          <View style={styles.cardContent}>
             <MaterialCommunityIcons name="dumbbell" size={32} color="#81C784" />
             <Text style={styles.cardText}>Workouts</Text>
-          </View>  
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Meals')}>
-          <View style ={styles.cardContent}>
+          <View style={styles.cardContent}>
             <MaterialCommunityIcons name="food-apple" size={32} color="#FFB74D" />
             <Text style={styles.cardText}>Meals</Text>
-          </View> 
+          </View>
+        </TouchableOpacity>
+
+        {/* ✅ Corrected Log Out navigation */}
+        <TouchableOpacity style={[styles.card, styles.logoutCard]} onPress={() => navigation.navigate('Log Out')}>
+          <View style={styles.cardContent}>
+            <MaterialCommunityIcons name="logout" size={32} color="#FF5252" />
+            <Text style={styles.cardText}>Log Out</Text>
+          </View>
         </TouchableOpacity>
       </View>
     </View>
@@ -83,18 +88,21 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     width: '80%',
   },
+  logoutCard: {
+    backgroundColor: '#2B1A1A',
+  },
   cardText: {
     fontSize: 20,
     fontWeight: '600',
     color: '#FAFAFA',
     textAlign: 'center',
+    marginLeft: 10,
   },
-  cardContent: {                 
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',                     
-  }
-
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 
