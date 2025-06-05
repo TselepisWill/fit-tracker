@@ -1,234 +1,278 @@
+require('dotenv').config();
 const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
 const mongoose = require('mongoose');
+const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const app = express();
+
+// Middleware
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect('mongodb://localhost:27017/fitnessDB', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('MongoDB Connected'))
-.catch(err => console.log(err));
+// Database Connection
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/fitnessDB')
+  .then(() => console.log('MongoDB Connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
-// Mongoose Models
+// Models
 const User = mongoose.model('User', new mongoose.Schema({
-  username: String,
-  email: String,
-  dailyCalorieGoal: Number
+  username: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  dailyCalorieGoal: { type: Number, default: 2000 },
+  createdAt: { type: Date, default: Date.now }
 }));
 
 const Workout = mongoose.model('Workout', new mongoose.Schema({
-  userId: Number,
-  description: String,
-  duration: Number,
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  description: { type: String, required: true },
+  duration: { type: Number, default: 0 },
   date: { type: Date, default: Date.now }
 }));
 
 const Meal = mongoose.model('Meal', new mongoose.Schema({
-  userId: Number,
-  description: String,
-  calories: Number,
-  protein: Number,
-  carbs: Number,
-  fats: Number,
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  description: { type: String, required: true },
+  calories: { type: Number, default: 0 },
+  protein: { type: Number, default: 0 },
+  carbs: { type: Number, default: 0 },
+  fats: { type: Number, default: 0 },
   date: { type: Date, default: Date.now }
 }));
 
-// Initialize with sample data (optional)
-async function initializeData() {
-  const count = await User.countDocuments();
-  if (count === 0) {
-    await User.create({ id: 1, username: 'ramel', email: 'ramel@example.com', dailyCalorieGoal: 2000 });
-    console.log('Sample user created');
-  }
-}
-initializeData();
+// Auth Middleware
+const authenticate = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: 'Authentication required' });
 
-// --- WORKOUT ENDPOINTS ---
+    const token = authHeader.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Authentication token missing' });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId).select('-password');
+    if (!user) return res.status(401).json({ error: 'User not found' });
+
+    req.user = user; // Attach user to request
+    next();
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid or expired token' });
+  }
+};
+
+// Public Routes
+
+// Register
+app.post('/api/register', async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'Username, email and password are required' });
+    }
+
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username or email already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      username,
+      email,
+      password: hashedPassword
+    });
+
+    await user.save();
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+
+    res.status(201).json({
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        dailyCalorieGoal: user.dailyCalorieGoal
+      },
+      token
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Login
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+
+    res.json({
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        dailyCalorieGoal: user.dailyCalorieGoal
+      },
+      token
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Use authenticate middleware for all routes below
+app.use(authenticate);
+
+// Workouts routes
 app.post('/api/workouts', async (req, res) => {
   try {
-    const { userId, description, duration } = req.body;
-    if (!userId || !description) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-    
-    const workout = await Workout.create({
-      userId,
-      description,
-      duration: duration || 0
+    const workout = new Workout({
+      user: req.user._id,
+      description: req.body.description,
+      duration: req.body.duration || 0,
+      date: req.body.date || new Date()
     });
-    
-    res.json({ success: true, workout });
+    await workout.save();
+    res.status(201).json(workout);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.get('/api/workouts/:userId', async (req, res) => {
+app.get('/api/workouts', async (req, res) => {
   try {
-    const userWorkouts = await Workout.find({ userId: req.params.userId }).sort('-date');
-    res.json(userWorkouts);
+    const workouts = await Workout.find({ user: req.user._id }).sort('-date');
+    res.json(workouts);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// --- ENHANCED MEAL ENDPOINTS ---
+// Meals routes
 app.post('/api/meals', async (req, res) => {
   try {
-    const { userId, description, calories, protein, carbs, fats } = req.body;
-    
-    if (!userId || !description) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    const { description, calories = 0, protein = 0, carbs = 0, fats = 0 } = req.body;
+
+    if (!description) {
+      return res.status(400).json({ error: 'Meal description is required' });
     }
 
-    const meal = await Meal.create({
-      userId,
+    const meal = new Meal({
+      user: req.user._id,
       description,
-      calories: Number(calories) || 0,
-      protein: Number(protein) || 0,
-      carbs: Number(carbs) || 0,
-      fats: Number(fats) || 0
+      calories,
+      protein,
+      carbs,
+      fats,
+      date: new Date()
     });
 
-    // Calculate daily totals
+    await meal.save();
+
+    // Calculate today's totals
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-    
+
     const dailyTotals = await Meal.aggregate([
-      {
-        $match: {
-          userId: Number(userId),
-          date: { $gte: todayStart }
-        }
-      },
+      { $match: { user: req.user._id, date: { $gte: todayStart } } },
       {
         $group: {
           _id: null,
-          calories: { $sum: "$calories" },
-          protein: { $sum: "$protein" },
-          carbs: { $sum: "$carbs" },
-          fats: { $sum: "$fats" }
+          calories: { $sum: '$calories' },
+          protein: { $sum: '$protein' },
+          carbs: { $sum: '$carbs' },
+          fats: { $sum: '$fats' }
         }
       }
     ]);
 
-    const user = await User.findOne({ id: userId });
     const totals = dailyTotals[0] || { calories: 0, protein: 0, carbs: 0, fats: 0 };
-    
-    res.json({ 
-      success: true, 
+
+    res.status(201).json({
       meal,
       dailyTotals: totals,
-      remainingCalories: user ? user.dailyCalorieGoal - totals.calories : 0
+      remainingCalories: req.user.dailyCalorieGoal - totals.calories
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.get('/api/meals/:userId', async (req, res) => {
+app.get('/api/meals', async (req, res) => {
   try {
     const { date } = req.query;
-    const query = { userId: req.params.userId };
-    
+    const query = { user: req.user._id };
+
     if (date) {
       const dateObj = new Date(date);
       const nextDay = new Date(dateObj);
       nextDay.setDate(dateObj.getDate() + 1);
-      
-      query.date = {
-        $gte: dateObj,
-        $lt: nextDay
-      };
+      query.date = { $gte: dateObj, $lt: nextDay };
     }
-    
-    const userMeals = await Meal.find(query).sort('-date');
-    res.json(userMeals);
+
+    const meals = await Meal.find(query).sort('-date');
+    res.json(meals);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// --- ENHANCED PROFILE ENDPOINTS ---
-app.get('/api/profile/:userId', async (req, res) => {
+// Profile stats
+app.get('/api/profile', async (req, res) => {
   try {
-    const user = await User.findOne({ id: Number(req.params.userId) });
-    if (!user) return res.status(404).json({ error: 'User not found' });
-
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-    
-    const stats = await Promise.all([
-      Workout.countDocuments({ userId: user.id }),
-      Meal.countDocuments({ userId: user.id }),
+
+    const [workoutCount, mealCount, nutritionStats] = await Promise.all([
+      Workout.countDocuments({ user: req.user._id }),
+      Meal.countDocuments({ user: req.user._id }),
       Meal.aggregate([
-        {
-          $match: {
-            userId: user.id,
-            date: { $gte: todayStart }
-          }
-        },
+        { $match: { user: req.user._id, date: { $gte: todayStart } } },
         {
           $group: {
             _id: null,
-            calories: { $sum: "$calories" },
-            protein: { $sum: "$protein" }
+            calories: { $sum: '$calories' },
+            protein: { $sum: '$protein' }
           }
         }
       ])
     ]);
 
-    const todayStats = stats[2][0] || { calories: 0, protein: 0 };
-    
+    const todayNutrition = nutritionStats[0] || { calories: 0, protein: 0 };
+
     res.json({
-      username: user.username,
-      email: user.email,
-      dailyCalorieGoal: user.dailyCalorieGoal,
-      totalWorkouts: stats[0],
-      totalMeals: stats[1],
-      todayCalories: todayStats.calories,
-      todayProtein: todayStats.protein
+      username: req.user.username,
+      email: req.user.email,
+      dailyCalorieGoal: req.user.dailyCalorieGoal,
+      totalWorkouts: workoutCount,
+      totalMeals: mealCount,
+      todayCalories: todayNutrition.calories,
+      todayProtein: todayNutrition.protein
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// --- IMPROVED NUTRITION ANALYSIS ---
-app.post('/api/analyze-meal', async (req, res) => {
-  try {
-    const { description } = req.body;
-    if (!description) return res.status(400).json({ error: 'Description required' });
-
-    // Mock AI analysis (replace with actual OpenAI integration)
-    const mockResults = {
-      "bowl of rice": { calories: 200, protein: 4, carbs: 45, fats: 0.5 },
-      "chicken breast": { calories: 165, protein: 31, carbs: 0, fats: 3.6 },
-      "salad": { calories: 50, protein: 3, carbs: 8, fats: 1 }
-    };
-
-    const result = mockResults[description.toLowerCase()] || {
-      calories: Math.floor(Math.random() * 300) + 100,
-      protein: Math.floor(Math.random() * 20) + 5,
-      carbs: Math.floor(Math.random() * 40) + 10,
-      fats: Math.floor(Math.random() * 15) + 3
-    };
-
-    res.json({
-      name: description,
-      ...result,
-      confidence: mockResults[description.toLowerCase()] ? 0.9 : 0.6
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
-const PORT = 3001;
-app.listen(PORT, () => console.log(`Backend API running at http://localhost:${PORT}`));
+// Start Server
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
