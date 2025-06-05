@@ -9,12 +9,7 @@ export default function HomeScreen({ navigation }) {
       <Text style={styles.subText}>Track your health, meals, and workouts smarter.</Text>
 
       <View style={styles.buttonGroup}>
-        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Log-In')}>
-          <View style={styles.cardContent}>
-            <MaterialCommunityIcons name="login" size={32} color="#fff" />
-            <Text style={styles.cardText}>Log-In</Text>
-          </View>
-        </TouchableOpacity>
+        
 
         <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Profile')}>
           <View style={styles.cardContent}>
@@ -34,14 +29,6 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.cardContent}>
             <MaterialCommunityIcons name="food-apple" size={32} color="#FFB74D" />
             <Text style={styles.cardText}>Meals</Text>
-          </View>
-        </TouchableOpacity>
-
-        {/* ✅ Corrected Log Out navigation */}
-        <TouchableOpacity style={[styles.card, styles.logoutCard]} onPress={() => navigation.navigate('Log Out')}>
-          <View style={styles.cardContent}>
-            <MaterialCommunityIcons name="logout" size={32} color="#FF5252" />
-            <Text style={styles.cardText}>Log Out</Text>
           </View>
         </TouchableOpacity>
       </View>

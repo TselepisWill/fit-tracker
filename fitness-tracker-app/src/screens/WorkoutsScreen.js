@@ -75,6 +75,7 @@ export default function WorkoutsScreen() {
         <TextInput
           style={styles.input}
           placeholder="Enter workout"
+          placeholderTextColor="#888"
           value={workoutText}
           onChangeText={setWorkoutText}
         />
@@ -103,6 +104,7 @@ export default function WorkoutsScreen() {
           <TextInput
             style={styles.input}
             placeholder="What do you want to work on?"
+            placeholderTextColor="#888"
             value={aiPrompt}
             onChangeText={setAiPrompt}
           />

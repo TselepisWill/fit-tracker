@@ -91,6 +91,7 @@ export default function MealsScreen() {
         <TextInput
           style={styles.input}
           placeholder="What did you eat?"
+          placeholderTextColor="#888"
           value={meal.description}
           onChangeText={(text) => handleInputChange('description', text)}
         />
@@ -99,6 +100,7 @@ export default function MealsScreen() {
           <TextInput
             style={[styles.input, styles.nutritionInput]}
             placeholder="Calories"
+            placeholderTextColor="#888"
             keyboardType="numeric"
             value={meal.calories}
             onChangeText={(text) => handleInputChange('calories', text)}
@@ -106,6 +108,7 @@ export default function MealsScreen() {
           <TextInput
             style={[styles.input, styles.nutritionInput]}
             placeholder="Protein (g)"
+            placeholderTextColor="#888"
             keyboardType="numeric"
             value={meal.protein}
             onChangeText={(text) => handleInputChange('protein', text)}
@@ -116,6 +119,7 @@ export default function MealsScreen() {
           <TextInput
             style={[styles.input, styles.nutritionInput]}
             placeholder="Carbs (g)"
+            placeholderTextColor="#888"
             keyboardType="numeric"
             value={meal.carbs}
             onChangeText={(text) => handleInputChange('carbs', text)}
@@ -123,6 +127,7 @@ export default function MealsScreen() {
           <TextInput
             style={[styles.input, styles.nutritionInput]}
             placeholder="Fats (g)"
+            placeholderTextColor="#888"
             keyboardType="numeric"
             value={meal.fats}
             onChangeText={(text) => handleInputChange('fats', text)}
@@ -184,8 +189,8 @@ const styles = StyleSheet.create({
     padding: 14,
     marginBottom: 12,
     fontSize: 16,
-    backgroundColor: '#121212',
-    color: '#fff',
+    backgroundColor: '#1a1a1a',
+    color: '#121212',
   },
   nutritionRow: {
     flexDirection: 'row',
