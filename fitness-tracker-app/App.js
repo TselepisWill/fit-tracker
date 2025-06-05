@@ -42,25 +42,24 @@ export default function App() {
       <NavigationContainer theme={DarkTheme}>
         <Drawer.Navigator
           initialRouteName="Home"
-          screenOptions={({ navigation }) => ({ 
-            drawerStyle: {
-              backgroundColor: '#1c1c1c',
-              width: 240,
-            },
-            headerStyle: {
-              backgroundColor: '#0d0d0d',
-            },
-            headerTintColor: '#fff',
-            drawerLabelStyle: {
-              color: '#fff',
-            },
-            headerRight: () => (
-              <TouchableOpacity onPress={() => navigation.navigate('Home')} style={{ marginRight: 15 }}>
-                <MaterialCommunityIcons name="weight-lifter" size={26} color="#fff" />
-              </TouchableOpacity>
+          screenOptions={({ navigation }) => ({
+            // ... other styling
+            headerRight: ({ tintColor }) => (  // <-- Replace here
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
+                <TouchableOpacity onPress={() => navigation.navigate('Home')} style={{ marginHorizontal: 6 }}>
+                  <MaterialCommunityIcons name="weight-lifter" size={26} color='#fff' />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Log-In')} style={{ marginHorizontal: 6 }}>
+                  <MaterialCommunityIcons name="login" size={26} color={tintColor} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Log Out')} style={{ marginHorizontal: 6 }}>
+                  <MaterialCommunityIcons name="logout" size={26} color="#FF5252" />
+                </TouchableOpacity>
+              </View>
             ),
           })}
         >
+
 
           <Drawer.Screen name="Home" component={HomeScreen} />
           <Drawer.Screen name="Log-In" component={AuthScreen} />
