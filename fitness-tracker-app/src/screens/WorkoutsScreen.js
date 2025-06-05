@@ -15,6 +15,8 @@ export default function WorkoutsScreen() {
   const [workoutText, setWorkoutText] = useState('');
   const [workouts, setWorkouts] = useState([]);
   const [message, setMessage] = useState('');
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiResponse, setAiResponse] = useState('');
   const userId = 1;
 
   const submitWorkout = async () => {
@@ -25,7 +27,6 @@ export default function WorkoutsScreen() {
 
     try {
       const res = await fetch('http://localhost:3001/api/workouts', {
-
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, description: workoutText }),
@@ -34,7 +35,7 @@ export default function WorkoutsScreen() {
       if (res.ok) {
         setWorkoutText('');
         setMessage('Workout saved successfully!');
-        setTimeout(() => setMessage(''), 3000); 
+        setTimeout(() => setMessage(''), 3000);
       } else {
         throw new Error('Failed to save workout');
       }
@@ -46,7 +47,7 @@ export default function WorkoutsScreen() {
 
   const fetchWorkouts = async () => {
     try {
-      setWorkouts([]); 
+      setWorkouts([]);
       const res = await fetch(`http://localhost:3001/api/workouts/${userId}?t=${Date.now()}`);
       const data = await res.json();
       setWorkouts(data);
@@ -56,13 +57,18 @@ export default function WorkoutsScreen() {
     }
   };
 
+  const handleAiSubmit = () => {
+    // Placeholder for your team to implement OpenAI fetch
+    setAiResponse('');
+  };
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Workouts</Text>
+        <Text style={styles.title}>Log/Display Workouts</Text>
 
         {message ? <Text style={styles.success}>{message}</Text> : null}
 
@@ -90,6 +96,25 @@ export default function WorkoutsScreen() {
         ) : (
           <Text style={styles.empty}>No workouts found.</Text>
         )}
+
+        <View style={{ marginTop: 30 }}>
+          <Text style={styles.title}>Get Workout Recommendations</Text>
+
+          <TextInput
+            style={styles.input}
+            placeholder="What do you want to work on?"
+            value={aiPrompt}
+            onChangeText={setAiPrompt}
+          />
+
+          <TouchableOpacity style={styles.button} onPress={handleAiSubmit}>
+            <Text style={styles.buttonText}>GET RECOMMENDATIONS</Text>
+          </TouchableOpacity>
+
+          {aiResponse ? (
+            <Text style={styles.item}>{aiResponse}</Text>
+          ) : null}
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -104,7 +129,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   title: {
-    fontSize: 28, 
+    fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
@@ -116,9 +141,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 14,
     marginBottom: 16,
-    fontSize: 18, 
-    backgroundColor: '#1a1a1a', 
-    color: '#fff', 
+    fontSize: 18,
+    backgroundColor: '#1a1a1a',
+    color: '#fff',
   },
   button: {
     backgroundColor: '#2196F3',
@@ -130,10 +155,10 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     textAlign: 'center',
-    fontSize: 18, 
+    fontSize: 18,
   },
   item: {
-    fontSize: 18, 
+    fontSize: 18,
     paddingVertical: 10,
     borderBottomColor: '#333',
     borderBottomWidth: 1,
@@ -142,7 +167,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   empty: {
-    fontSize: 18, 
+    fontSize: 18,
     fontStyle: 'italic',
     color: '#888',
     textAlign: 'center',
@@ -156,4 +181,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
 
