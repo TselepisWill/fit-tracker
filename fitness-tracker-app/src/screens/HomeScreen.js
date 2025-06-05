@@ -10,7 +10,6 @@ export default function HomeScreen({ navigation }) {
 
       <View style={styles.buttonGroup}>
         
-
         <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Profile')}>
           <View style={styles.cardContent}>
             <MaterialCommunityIcons name="account-circle" size={32} color="#4FC3F7" />
@@ -31,6 +30,9 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.cardText}>Meals</Text>
           </View>
         </TouchableOpacity>
+
+        
+        
       </View>
     </View>
   );

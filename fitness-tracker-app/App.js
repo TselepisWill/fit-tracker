@@ -66,7 +66,7 @@ export default function App() {
           <Drawer.Screen name="Profile" component={ProfileScreen} />
           <Drawer.Screen name="Workouts" component={WorkoutsScreen} />
           <Drawer.Screen name="Meals" component={MealsScreen} />
-          
+          <Drawer.Screen name="Log Out" component={LogOutScreen} />
         </Drawer.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>
