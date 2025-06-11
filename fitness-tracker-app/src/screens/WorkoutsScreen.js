@@ -2,186 +2,194 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  Alert
+  Alert,
+  StyleSheet
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from './config';
 
 export default function WorkoutsScreen() {
-  const [workoutText, setWorkoutText] = useState('');
+  const [workout, setWorkout] = useState('');
+  const [goal, setGoal] = useState('');
   const [workouts, setWorkouts] = useState([]);
   const [message, setMessage] = useState('');
-  const [aiPrompt, setAiPrompt] = useState('');
-  const [aiResponse, setAiResponse] = useState('');
-  const userId = 1;
+  const [recommendations, setRecommendations] = useState([]);
 
   const submitWorkout = async () => {
-    if (!workoutText.trim()) {
-      Alert.alert('Please enter a workout description.');
-      return;
-    }
-
+    if (!workout.trim()) return Alert.alert('Please enter a workout.');
     try {
-      const res = await fetch('http://localhost:3001/api/workouts', {
+      const token = await AsyncStorage.getItem('token');
+      const res = await fetch(`${BASE_URL}/api/workouts`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, description: workoutText }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ description: workout })
       });
-
-      if (res.ok) {
-        setWorkoutText('');
-        setMessage('Workout saved successfully!');
-        setTimeout(() => setMessage(''), 3000);
-      } else {
-        throw new Error('Failed to save workout');
-      }
+      if (!res.ok) throw new Error('Failed to save workout');
+      setWorkout('');
+      setMessage('Workout saved!');
+      setTimeout(() => setMessage(''), 2000);
     } catch (err) {
-      console.error('Error submitting workout:', err);
-      Alert.alert('Error', 'Could not submit workout.');
+      Alert.alert('Error', err.message);
     }
   };
 
-  const fetchWorkouts = async () => {
+  const displayWorkouts = async () => {
     try {
-      setWorkouts([]);
-      const res = await fetch(`http://localhost:3001/api/workouts/${userId}?t=${Date.now()}`);
+      const token = await AsyncStorage.getItem('token');
+      const res = await fetch(`${BASE_URL}/api/workouts?t=${Date.now()}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Failed to fetch workouts');
       const data = await res.json();
       setWorkouts(data);
     } catch (err) {
-      console.error('Error fetching workouts:', err);
-      Alert.alert('Error', 'Could not fetch workouts.');
+      Alert.alert('Error', err.message);
     }
   };
 
-  const handleAiSubmit = () => {
-    // Placeholder for your team to implement OpenAI fetch
-    setAiResponse('');
+  const getRecommendations = () => {
+    if (!goal.trim()) {
+      Alert.alert('Please enter a goal (e.g., strength, cardio)');
+      return;
+    }
+
+    const g = goal.toLowerCase();
+    let recs = [];
+
+    if (g.includes('strength')) {
+      recs = ['Deadlifts', 'Bench Press', 'Squats'];
+    } else if (g.includes('cardio')) {
+      recs = ['Running', 'Cycling', 'Jump Rope'];
+    } else if (g.includes('flexibility')) {
+      recs = ['Yoga', 'Stretching', 'Pilates'];
+    } else {
+      recs = ['Push-ups', 'Planks', 'Burpees'];
+    }
+
+    setRecommendations(recs);
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Log/Display Workouts</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Log/Display Workouts</Text>
 
-        {message ? <Text style={styles.success}>{message}</Text> : null}
+      <TextInput
+        style={styles.input}
+        placeholder="Enter workout"
+        placeholderTextColor="#999"
+        value={workout}
+        onChangeText={setWorkout}
+      />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Enter workout"
-          placeholderTextColor="#888"
-          value={workoutText}
-          onChangeText={setWorkoutText}
-        />
+      <TouchableOpacity style={styles.button} onPress={submitWorkout}>
+        <Text style={styles.buttonText}>SUBMIT WORKOUT</Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={submitWorkout}>
-          <Text style={styles.buttonText}>SUBMIT WORKOUT</Text>
-        </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={displayWorkouts}>
+        <Text style={styles.buttonText}>DISPLAY WORKOUTS</Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={fetchWorkouts}>
-          <Text style={styles.buttonText}>DISPLAY WORKOUTS</Text>
-        </TouchableOpacity>
+      {workouts.length > 0 ? (
+        workouts.map((w, i) => (
+          <Text key={i} style={styles.workoutItem}>
+            {i + 1}. {w.description}
+          </Text>
+        ))
+      ) : (
+        <Text style={styles.emptyText}>No workouts found.</Text>
+      )}
 
-        {workouts.length > 0 ? (
-          workouts.map((w, i) => (
-            <Text key={i} style={styles.item}>
-              {i + 1}. {w.description}
+      <Text style={styles.subTitle}>Get Workout Recommendations</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="What do you want to work on?"
+        placeholderTextColor="#999"
+        value={goal}
+        onChangeText={setGoal}
+      />
+
+      <TouchableOpacity style={styles.button} onPress={getRecommendations}>
+        <Text style={styles.buttonText}>GET RECOMMENDATIONS</Text>
+      </TouchableOpacity>
+
+      {recommendations.length > 0 && (
+        <View style={{ marginTop: 16 }}>
+          <Text style={styles.subTitle}>Recommended:</Text>
+          {recommendations.map((r, i) => (
+            <Text key={i} style={styles.recommendation}>
+              • {r}
             </Text>
-          ))
-        ) : (
-          <Text style={styles.empty}>No workouts found.</Text>
-        )}
-
-        <View style={{ marginTop: 30 }}>
-          <Text style={styles.title}>Get Workout Recommendations</Text>
-
-          <TextInput
-            style={styles.input}
-            placeholder="What do you want to work on?"
-            placeholderTextColor="#888"
-            value={aiPrompt}
-            onChangeText={setAiPrompt}
-          />
-
-          <TouchableOpacity style={styles.button} onPress={handleAiSubmit}>
-            <Text style={styles.buttonText}>GET RECOMMENDATIONS</Text>
-          </TouchableOpacity>
-
-          {aiResponse ? (
-            <Text style={styles.item}>{aiResponse}</Text>
-          ) : null}
+          ))}
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
     backgroundColor: '#121212',
-    paddingBottom: 40,
+    padding: 20,
+    flexGrow: 1
   },
   title: {
-    fontSize: 28,
+    fontSize: 20,
+    color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 16
+  },
+  subTitle: {
+    fontSize: 18,
     color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 24
   },
   input: {
-    borderColor: '#555',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 16,
-    fontSize: 18,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#1e1e1e',
     color: '#fff',
+    padding: 12,
+    borderRadius: 8,
+    borderColor: '#333',
+    borderWidth: 1,
+    marginBottom: 12
   },
   button: {
     backgroundColor: '#2196F3',
-    paddingVertical: 16,
-    borderRadius: 6,
-    marginBottom: 12,
+    paddingVertical: 14,
+    borderRadius: 8,
+    marginBottom: 10
   },
   buttonText: {
     color: '#fff',
-    fontWeight: '600',
     textAlign: 'center',
-    fontSize: 18,
+    fontWeight: '600'
   },
-  item: {
-    fontSize: 18,
-    paddingVertical: 10,
-    borderBottomColor: '#333',
-    borderBottomWidth: 1,
-    textAlign: 'left',
-    paddingHorizontal: 5,
+  workoutItem: {
     color: '#fff',
+    fontSize: 16,
+    marginBottom: 4
   },
-  empty: {
-    fontSize: 18,
-    fontStyle: 'italic',
+  recommendation: {
+    color: '#00FF99',
+    fontSize: 16,
+    paddingLeft: 6,
+    marginBottom: 4
+  },
+  emptyText: {
     color: '#888',
     textAlign: 'center',
-    marginTop: 20,
-  },
-  success: {
-    color: 'green',
-    textAlign: 'center',
-    marginBottom: 10,
-    fontWeight: '500',
-    fontSize: 16,
-  },
+    fontStyle: 'italic',
+    marginTop: 8
+  }
 });
 
 
