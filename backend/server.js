@@ -4,6 +4,9 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Sequelize, DataTypes, Op } = require('sequelize');
+const { OpenAI } = require('openai');
+const openai = new OpenAI({ apiKey: ''});
+
 
 const app = express();
 app.use(cors());
@@ -156,6 +159,38 @@ app.get('/api/workouts', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+
+
+app.get('/api/recommend-workout', async (req, res) => {
+  try {
+    const workouts = await Workout.findAll({
+      where: { userId: req.user.id },
+      order: [['date', 'DESC']],
+      limit: 5
+    });
+
+    const descriptions = workouts.map(w => w.description).join(', ');
+
+    const prompt = `
+      Based on these recent workouts: ${descriptions || 'none'}, 
+      suggest three new workouts the user hasn't done yet. 
+      Just give the names. No explanation.`.trim();
+
+    const chat = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: 'user', content: prompt }]
+    });
+
+    const suggestion = chat.choices[0].message.content.trim();
+    res.json({ suggestion });
+  } catch (err) {
+    console.error('AI Error:', err);
+    res.status(500).json({ error: 'AI recommendation failed' });
+  }
+});
+
+
 
 
 app.post('/api/meals', async (req, res) => {
