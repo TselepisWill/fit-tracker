@@ -1,164 +1,158 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView,
-  KeyboardAvoidingView, Platform, Alert
+  View, Text, TextInput, TouchableOpacity,
+  ScrollView, KeyboardAvoidingView,
+  Platform, Alert, StyleSheet
 } from 'react-native';
-import { getAuth } from '../utils/authStorage';
-
-const API_URL = 'http://10.0.0.232:3001';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from './config';
 
 export default function MealsScreen() {
-  const [meal, setMeal] = useState({
-    description: '', calories: '', protein: '', carbs: '', fats: ''
-  });
-  const [meals, setMeals] = useState([]);
-  const [message, setMessage] = useState('');
-  const [auth, setAuth] = useState(null);
+  const [meal,   setMeal]   = useState({ desc:'', cal:'', pro:'', carb:'', fat:'' });
+  const [log,    setLog]    = useState([]);
+  const [info,   setInfo]   = useState('');
 
-  useEffect(() => {
-    const loadAuth = async () => {
-      const authData = await getAuth();
-      if (!authData) {
-        Alert.alert('Auth required', 'Please log in');
-        return;
-      }
-      setAuth(authData);
-      fetchMeals(authData);
-    };
+  useEffect(() => { fetchMeals(); }, []);
 
-    loadAuth();
-  }, []);
+  const fetchMeals = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const today = new Date().toISOString().slice(0,10);
+      const res = await fetch(`${BASE_URL}/api/meals?date=${today}`, {
+        headers:{ Authorization:`Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Fetch failed');
+      setLog(await res.json());
+    } catch(err) {
+      Alert.alert('Error', err.message);
+    }
+  };
 
   const submitMeal = async () => {
-    if (!meal.description.trim()) {
-      Alert.alert('Please enter a meal description.');
-      return;
+    if (!meal.desc.trim()) {
+      return Alert.alert('Enter a meal description.');
     }
-
     try {
-      const res = await fetch(`${API_URL}/api/meals`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.token}`
+      const token = await AsyncStorage.getItem('token');
+      const res = await fetch(`${BASE_URL}/api/meals`, {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          Authorization:`Bearer ${token}`
         },
-        body: JSON.stringify({
-          description: meal.description,
-          calories: Number(meal.calories) || 0,
-          protein: Number(meal.protein) || 0,
-          carbs: Number(meal.carbs) || 0,
-          fats: Number(meal.fats) || 0
-        }),
+        body:JSON.stringify({
+          description: meal.desc,
+          calories: Number(meal.cal)||0,
+          protein:  Number(meal.pro)||0,
+          carbs:    Number(meal.carb)||0,
+          fats:     Number(meal.fat)||0
+        })
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error logging meal');
-
-      setMeal({ description: '', calories: '', protein: '', carbs: '', fats: '' });
-      setMessage('Meal logged!');
-      setMeals([data.meal, ...meals]);
-      setTimeout(() => setMessage(''), 3000);
-    } catch (err) {
-      console.error('Error submitting meal:', err);
-      Alert.alert('Error', 'Could not log meal.');
+      if (!res.ok) throw new Error('Submit failed');
+      setInfo('Logged!');
+      setMeal({ desc:'', cal:'', pro:'', carb:'', fat:'' });
+      fetchMeals();
+      setTimeout(()=>setInfo(''),2000);
+    } catch(err) {
+      Alert.alert('Error', err.message);
     }
-  };
-
-  const fetchMeals = async (authData = auth) => {
-    try {
-      const res = await fetch(`${API_URL}/api/meals`, {
-        headers: { 'Authorization': `Bearer ${authData.token}` }
-      });
-      const data = await res.json();
-      setMeals(data);
-    } catch (err) {
-      console.error('Error fetching meals:', err);
-      Alert.alert('Error', 'Could not fetch meals.');
-    }
-  };
-
-  const handleInputChange = (field, value) => {
-    setMeal(prev => ({ ...prev, [field]: value }));
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView
+      style={{ flex:1 }}
+      behavior={Platform.OS==='ios'?'padding':'height'}
+    >
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Meal Tracker</Text>
-        {message ? <Text style={styles.success}>{message}</Text> : null}
+        {info ? <Text style={styles.info}>{info}</Text> : null}
 
-        <TextInput style={styles.input} placeholder="What did you eat?" placeholderTextColor="#888"
-          value={meal.description} onChangeText={(text) => handleInputChange('description', text)} />
-
-        <View style={styles.nutritionRow}>
-          <TextInput style={[styles.input, styles.nutritionInput]} placeholder="Calories" placeholderTextColor="#888"
-            keyboardType="numeric" value={meal.calories}
-            onChangeText={(text) => handleInputChange('calories', text)} />
-          <TextInput style={[styles.input, styles.nutritionInput]} placeholder="Protein (g)" placeholderTextColor="#888"
-            keyboardType="numeric" value={meal.protein}
-            onChangeText={(text) => handleInputChange('protein', text)} />
+        <TextInput
+          style={styles.input}
+          placeholder="What did you eat?"
+          placeholderTextColor="#888"
+          value={meal.desc}
+          onChangeText={t=>setMeal({...meal,desc:t})}
+        />
+        <View style={styles.row}>
+          <TextInput
+            style={[styles.input,styles.half]}
+            placeholder="Calories"
+            placeholderTextColor="#888"
+            value={meal.cal}
+            keyboardType="numeric"
+            onChangeText={t=>setMeal({...meal,cal:t})}
+          />
+          <TextInput
+            style={[styles.input,styles.half]}
+            placeholder="Protein (g)"
+            placeholderTextColor="#888"
+            value={meal.pro}
+            keyboardType="numeric"
+            onChangeText={t=>setMeal({...meal,pro:t})}
+          />
         </View>
-
-        <View style={styles.nutritionRow}>
-          <TextInput style={[styles.input, styles.nutritionInput]} placeholder="Carbs (g)" placeholderTextColor="#888"
-            keyboardType="numeric" value={meal.carbs}
-            onChangeText={(text) => handleInputChange('carbs', text)} />
-          <TextInput style={[styles.input, styles.nutritionInput]} placeholder="Fats (g)" placeholderTextColor="#888"
-            keyboardType="numeric" value={meal.fats}
-            onChangeText={(text) => handleInputChange('fats', text)} />
+        <View style={styles.row}>
+          <TextInput
+            style={[styles.input,styles.half]}
+            placeholder="Carbs (g)"
+            placeholderTextColor="#888"
+            value={meal.carb}
+            keyboardType="numeric"
+            onChangeText={t=>setMeal({...meal,carb:t})}
+          />
+          <TextInput
+            style={[styles.input,styles.half]}
+            placeholder="Fats (g)"
+            placeholderTextColor="#888"
+            value={meal.fat}
+            keyboardType="numeric"
+            onChangeText={t=>setMeal({...meal,fat:t})}
+          />
         </View>
-
-        <TouchableOpacity style={styles.button} onPress={submitMeal}>
-          <Text style={styles.buttonText}>LOG MEAL</Text>
+        <TouchableOpacity style={styles.logBtn} onPress={submitMeal}>
+          <Text style={styles.btnText}>LOG MEAL</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.refBtn} onPress={fetchMeals}>
+          <Text style={styles.refText}>REFRESH MEALS</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.button, styles.refreshButton]} onPress={fetchMeals}>
-          <Text style={[styles.buttonText, styles.refreshButtonText]}>REFRESH MEALS</Text>
-        </TouchableOpacity>
-
-        {meals.length > 0 ? meals.map((m, i) => (
-          <View key={i} style={styles.mealItem}>
-            <Text style={styles.mealDescription}>{m.description}</Text>
-            <View style={styles.macroRow}>
-              <Text style={styles.macroText}>{m.calories} kcal</Text>
-              <Text style={styles.macroText}>P: {m.protein}g</Text>
-              <Text style={styles.macroText}>C: {m.carbs}g</Text>
-              <Text style={styles.macroText}>F: {m.fats}g</Text>
-            </View>
-            <Text style={styles.mealTime}>
-              {new Date(m.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </Text>
-          </View>
-        )) : <Text style={styles.empty}>No meals logged today.</Text>}
+        {log.length>0
+          ? log.map((m,i)=>(
+              <View key={i} style={styles.item}>
+                <Text style={styles.desc}>{m.description}</Text>
+                <Text style={styles.macros}>
+                  {m.calories} kcal • P:{m.protein}g • C:{m.carbs}g • F:{m.fats}g
+                </Text>
+                <Text style={styles.time}>
+                  {new Date(m.date).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
+                </Text>
+              </View>
+            ))
+          : <Text style={styles.empty}>No meals logged today.</Text>
+        }
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, padding: 20, backgroundColor: '#121212', paddingBottom: 40 },
-  title: { fontSize: 28, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: '#4CAF50' },
-  input: {
-    borderColor: '#ddd', borderWidth: 1, borderRadius: 8, padding: 14,
-    marginBottom: 12, fontSize: 16, backgroundColor: '#1a1a1a', color: '#fff',
+  container:{ flexGrow:1, padding:20, backgroundColor:'#121212', paddingBottom:40 },
+  title:{ fontSize:28, fontWeight:'bold', color:'#4CAF50', textAlign:'center', marginBottom:20 },
+  info:{ color:'#4CAF50', textAlign:'center', marginBottom:10 },
+  input:{
+    borderColor:'#ddd', borderWidth:1, borderRadius:8,
+    padding:14, marginBottom:12, color:'#fff', backgroundColor:'#1a1a1a'
   },
-  nutritionRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
-  nutritionInput: { width: '48%' },
-  button: {
-    backgroundColor: '#4CAF50', paddingVertical: 14, borderRadius: 8,
-    marginBottom: 12, elevation: 2,
-  },
-  refreshButton: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#4CAF50' },
-  buttonText: { color: '#fff', fontWeight: '600', textAlign: 'center', fontSize: 16 },
-  refreshButtonText: { color: '#4CAF50' },
-  mealItem: {
-    backgroundColor: '#f9f9f9', borderRadius: 8, padding: 12,
-    marginBottom: 10, borderLeftWidth: 4, borderLeftColor: '#4CAF50',
-  },
-  mealDescription: { fontSize: 16, fontWeight: '500', marginBottom: 6 },
-  macroRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  macroText: { fontSize: 14, color: '#555' },
-  mealTime: { fontSize: 12, color: '#888', textAlign: 'right', marginTop: 4 },
-  empty: { fontSize: 16, fontStyle: 'italic', color: '#888', textAlign: 'center', marginTop: 20 },
-  success: { color: '#4CAF50', textAlign: 'center', marginBottom: 10, fontWeight: '500', fontSize: 16 },
+  row:{ flexDirection:'row', justifyContent:'space-between' },
+  half:{ width:'48%' },
+  logBtn:{ backgroundColor:'#4CAF50', paddingVertical:14, borderRadius:8, marginBottom:12 },
+  btnText:{ color:'#fff', textAlign:'center', fontSize:16, fontWeight:'600' },
+  refBtn:{ backgroundColor:'#fff', borderWidth:1, borderColor:'#4CAF50', paddingVertical:14, borderRadius:8, marginBottom:20 },
+  refText:{ color:'#4CAF50', textAlign:'center', fontSize:16, fontWeight:'600' },
+  item:{ backgroundColor:'#1e1e1e', padding:12, borderRadius:8, marginBottom:12 },
+  desc:{ color:'#fff', fontSize:16, marginBottom:6 },
+  macros:{ color:'#ccc', marginBottom:4 },
+  time:{ color:'#888', textAlign:'right', fontSize:12 },
+  empty:{ color:'#888', textAlign:'center', marginTop:20, fontStyle:'italic' }
 });
