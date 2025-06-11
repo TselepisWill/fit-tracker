@@ -53,27 +53,21 @@ export default function WorkoutsScreen() {
     }
   };
 
-  const getRecommendations = () => {
-    if (!goal.trim()) {
-      Alert.alert('Please enter a goal (e.g., strength, cardio)');
-      return;
-    }
+const getRecommendations = async () => {
+  try {
+    const token = await AsyncStorage.getItem('token'); // ADDED
+    const res = await fetch(`${BASE_URL}/api/recommend-workout`, {
+      headers: { Authorization: `Bearer ${token}` } // ADDED
+    });
 
-    const g = goal.toLowerCase();
-    let recs = [];
+    if (!res.ok) throw new Error('Failed to get recommendation');
+    const data = await res.json(); // ADDED
+    setRecommendations([data.suggestion]); // ADDED
+  } catch (err) {
+    Alert.alert('Error', err.message); // ADDED
+  }
+};
 
-    if (g.includes('strength')) {
-      recs = ['Deadlifts', 'Bench Press', 'Squats'];
-    } else if (g.includes('cardio')) {
-      recs = ['Running', 'Cycling', 'Jump Rope'];
-    } else if (g.includes('flexibility')) {
-      recs = ['Yoga', 'Stretching', 'Pilates'];
-    } else {
-      recs = ['Push-ups', 'Planks', 'Burpees'];
-    }
-
-    setRecommendations(recs);
-  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -105,15 +99,8 @@ export default function WorkoutsScreen() {
         <Text style={styles.emptyText}>No workouts found.</Text>
       )}
 
-      <Text style={styles.subTitle}>Get Workout Recommendations</Text>
+      <Text style={styles.subTitle}>Get Personalized Workout Recommendations</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="What do you want to work on?"
-        placeholderTextColor="#999"
-        value={goal}
-        onChangeText={setGoal}
-      />
 
       <TouchableOpacity style={styles.button} onPress={getRecommendations}>
         <Text style={styles.buttonText}>GET RECOMMENDATIONS</Text>
