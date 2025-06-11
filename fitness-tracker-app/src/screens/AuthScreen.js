@@ -1,131 +1,116 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-} from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { BASE_URL } from './config';
 
-export default function AuthScreen() {
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [registerEmail, setRegisterEmail] = useState('');
-  const [registerPassword, setRegisterPassword] = useState('');
+export default function AuthScreen({ navigation }) {
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    if (!loginEmail || !loginPassword) {
-      Alert.alert('Please enter login email and password.');
-      return;
-    }
-    Alert.alert('Login submitted');
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setEmail('');
+    setPassword('');
+    setUsername('');
   };
 
-  const handleRegister = () => {
-    if (!registerEmail || !registerPassword) {
-      Alert.alert('Please enter registration email and password.');
-      return;
+  const handleAuth = async () => {
+    const url = `${BASE_URL}/api/${isLogin ? 'login' : 'register'}`;
+    const payload = isLogin ? { email, password } : { username, email, password };
+
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        Alert.alert('Error', data.error || 'Something went wrong');
+        return;
+      }
+
+      localStorage.setItem('token', data.token); // or AsyncStorage for native
+
+      Alert.alert('Success', `${isLogin ? 'Login' : 'Registration'} successful`);
+      navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+
+    } catch (err) {
+      Alert.alert('Network Error', err.message);
     }
-    Alert.alert('Registration submitted');
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Log In</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>{isLogin ? 'Log In' : 'Sign Up'}</Text>
 
+      {!isLogin && (
         <TextInput
+          placeholder="Username"
+          placeholderTextColor="#aaa"
           style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#999"
-          value={loginEmail}
-          onChangeText={setLoginEmail}
+          value={username}
+          onChangeText={setUsername}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#999"
-          secureTextEntry
-          value={loginPassword}
-          onChangeText={setLoginPassword}
-        />
+      )}
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>LOGIN</Text>
-        </TouchableOpacity>
+      <TextInput
+        placeholder="Email"
+        placeholderTextColor="#aaa"
+        style={styles.input}
+        autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
+      />
 
-        <Text style={styles.title}>Sign up</Text>
+      <TextInput
+        placeholder="Password"
+        placeholderTextColor="#aaa"
+        secureTextEntry
+        style={styles.input}
+        value={password}
+        onChangeText={setPassword}
+      />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#999"
-          value={registerEmail}
-          onChangeText={setRegisterEmail}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#999"
-          secureTextEntry
-          value={registerPassword}
-          onChangeText={setRegisterPassword}
-        />
+      <Button title={isLogin ? 'LOGIN' : 'REGISTER'} onPress={handleAuth} />
 
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>REGISTER</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <TouchableOpacity onPress={toggleMode}>
+        <Text style={styles.link}>
+          {isLogin ? `Don't have one? Sign Up →` : 'Already have an account? Log In →'}
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
+    flex: 1,
     backgroundColor: '#121212',
-    paddingBottom: 40,
+    padding: 20,
+    justifyContent: 'center'
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-    marginTop: 30,
     color: '#fff',
+    fontSize: 26,
+    fontWeight: 'bold',
+    alignSelf: 'center',
+    marginBottom: 20
   },
   input: {
-    width: '70%',
-    borderColor: '#555',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 16,
-    fontSize: 16,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#222',
     color: '#fff',
-  },
-  button: {
-    width: '45%',
-    backgroundColor: '#2196F3',
-    paddingVertical: 16,
-    borderRadius: 6,
+    padding: 10,
     marginBottom: 12,
+    borderRadius: 6
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
+  link: {
+    color: '#4EA6EA',
     textAlign: 'center',
-    fontSize: 18,
-  },
+    fontSize: 16,
+    marginTop: 15
+  }
 });
