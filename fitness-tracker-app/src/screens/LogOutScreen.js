@@ -1,70 +1,69 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LogOutScreen({ navigation }) {
-  const handleLogout = () => {
-    // Clear auth state if needed
-    navigation.navigate('Log-In');
-  };
-
-  const handleCancel = () => {
-    navigation.goBack();
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('token'); 
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'LogIn' }]          
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Are you sure you want to log out?</Text>
-
-      <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.button} onPress={handleLogout}>
-          <Text style={styles.buttonText}>Log Out</Text>
+    <View style={s.container}>
+      <Text style={s.title}>Are you sure you want to log out?</Text>
+      <View style={s.row}>
+        <TouchableOpacity style={s.btn} onPress={handleLogout}>
+          <Text style={s.btnTxt}>Yes, log out</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={handleCancel}>
-          <Text style={styles.buttonText}>Cancel</Text>
+        <TouchableOpacity style={[s.btn, s.cancel]} onPress={() => navigation.goBack()}>
+          <Text style={s.btnTxt}>Cancel</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const s = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
     backgroundColor: '#121212',
-    paddingBottom: 40,
+    padding: 20
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-    marginTop: 30,
+    fontSize: 18,
     color: '#fff',
+    marginBottom: 30,
+    fontWeight: '600'
   },
-  buttonRow: {
+  row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '70%',
-    gap: 16, // Optional: adds space between buttons
+    width: '90%'
   },
-  button: {
-    width: '45%',
+  btn: {
+    flex: 1,
     backgroundColor: '#2196F3',
-    paddingVertical: 16,
-    borderRadius: 6,
-    marginBottom: 12,
+    padding: 14,
+    borderRadius: 8,
+    marginHorizontal: 6
   },
-  cancelButton: {
-    backgroundColor: '#777',
+  cancel: {
+    backgroundColor: '#777'
   },
-  buttonText: {
+  btnTxt: {
     color: '#fff',
-    fontWeight: '600',
     textAlign: 'center',
-    fontSize: 18,
-  },
+    fontWeight: '600',
+    fontSize: 13
+  }
 });
+
