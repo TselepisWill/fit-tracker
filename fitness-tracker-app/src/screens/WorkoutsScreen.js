@@ -166,10 +166,11 @@ const styles = StyleSheet.create({
     marginBottom: 4
   },
   recommendation: {
-    color: '#00FF99',
+    color: '#FFF',
     fontSize: 16,
     paddingLeft: 6,
-    marginBottom: 4
+    marginBottom: 4,
+    textAlign: 'center'
   },
   emptyText: {
     color: '#888',
